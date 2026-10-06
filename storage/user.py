@@ -23,3 +23,7 @@ def post_user(db: Session, user_dict: dict[str,Any]) -> User:
     db.refresh(user)
 
     return user
+
+def delete_user(db: Session, user: User) -> None:
+    db.delete(user)
+    db.commit()
