@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from database.models import *
 from typing import Any
 
-def get_users(db: Session) -> list[User]:
-    statement = select(User)
+def get_users(db: Session, limit: int, offset: int) -> list[User]:
+    statement = select(User).offset(offset).limit(limit)
     result = db.execute(statement)
     users = result.scalars().all()
     return users

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from models.user import *
 from database.db import get_db
@@ -14,8 +14,10 @@ def validate_user(user_id: int, db: Session = Depends(get_db)) -> User:
     return user
 
 @user_router.get("", response_model=list[UserModel])
-def get_users(db: Session = Depends(get_db)) -> list[User]:
-    return storage.get_users(db)
+def get_users(limit: int = Query(default=100, ge=1, le=100),
+              offset: int = Query(default=0, ge=0),
+              db: Session = Depends(get_db)) -> list[User]:
+    return storage.get_users(db, limit, offset)
 
 @user_router.get("/{user_id}", response_model=UserModel)
 def get_user(user: User = Depends(validate_user)) -> User:
