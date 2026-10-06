@@ -27,3 +27,12 @@ def post_user(db: Session, create_dict: dict[str,Any]) -> User:
 def delete_user(db: Session, user: User) -> None:
     db.delete(user)
     db.commit()
+
+def patch_user(db: Session, user: User, patch_dict: dict[str,Any]) -> User:
+    for attr, value in patch_dict.items():
+        setattr(user, attr, value)
+
+    db.commit()
+    db.refresh(user)
+
+    return user
