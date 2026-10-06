@@ -15,8 +15,8 @@ def get_user(db: Session, user_id: int) -> User:
     user = result.scalar()
     return user
 
-def post_user(db: Session, user_dict: dict[str,Any]) -> User:
-    user: User = User(**user_dict)
+def post_user(db: Session, create_dict: dict[str,Any]) -> User:
+    user: User = User(**create_dict)
 
     db.add(user)
     db.commit()
