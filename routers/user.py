@@ -20,3 +20,7 @@ def get_users(db: Session = Depends(get_db)) -> list[User]:
 @user_router.get("/{user_id}", response_model=UserModel)
 def get_user(user: User = Depends(validate_user)) -> User:
     return user
+
+@user_router.post("", response_model=UserModel, status_code=201)
+def post_user(user_create: UserCreate, db: Session = Depends(get_db)) -> User:
+    return storage.post_user(db, user_create.model_dump())
