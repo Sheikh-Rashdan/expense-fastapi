@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from database.models import *
 from typing import Any
 
-def get_categories(db: Session, user: User) -> list[Category]:
-    statement = select(Category).where(Category.user == user)
+def get_categories(db: Session, user: User, limit: int, offset: int) -> list[Category]:
+    statement = select(Category).where(Category.user == user).offset(offset).limit(limit)
     result = db.execute(statement)
     categories = result.scalars().all()
     return categories

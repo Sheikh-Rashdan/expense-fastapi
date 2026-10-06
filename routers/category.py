@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from models.category import *
 from routers.user import validate_user
@@ -15,8 +15,11 @@ def validate_category(category_id: int, db: Session = Depends(get_db)) -> Catego
     return category
 
 @category_router.get("/users/{user_id}/categories", response_model=list[CategoryModel])
-def get_categories(user: User = Depends(validate_user), db: Session = Depends(get_db)) -> list[Category]:
-    return storage.get_categories(db, user)
+def get_categories(limit: int = Query(default=100, ge=1, le=100),
+                   offset: int = Query(default=0, ge=0),
+                   user: User = Depends(validate_user),
+                   db: Session = Depends(get_db)) -> list[Category]:
+    return storage.get_categories(db, user, limit, offset)
 
 @category_router.get("/categories/{category_id}", response_model=CategoryModel)
 def get_category(category: Category = Depends(validate_category)) -> Category:
