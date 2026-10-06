@@ -24,3 +24,7 @@ def get_user(user: User = Depends(validate_user)) -> User:
 @user_router.post("", response_model=UserModel, status_code=201)
 def post_user(user_create: UserCreate, db: Session = Depends(get_db)) -> User:
     return storage.post_user(db, user_create.model_dump())
+
+@user_router.delete("/{user_id}", status_code=204)
+def delete_user(user: User = Depends(validate_user), db: Session = Depends(get_db)) -> None:
+    storage.delete_user(db, user)
