@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database.models import *
-from typing import Any
+from typing import Any, Optional
 
 def get_categories(db: Session, user: User, limit: int, offset: int) -> list[Category]:
     statement = select(Category).where(Category.user == user).offset(offset).limit(limit)
@@ -9,7 +9,7 @@ def get_categories(db: Session, user: User, limit: int, offset: int) -> list[Cat
     categories = result.scalars().all()
     return categories
 
-def get_category(db: Session, category_id: int) -> Category:
+def get_category(db: Session, category_id: int) -> Optional[Category]:
     statement = select(Category).where(Category.id == category_id)
     result = db.execute(statement)
     category = result.scalar()

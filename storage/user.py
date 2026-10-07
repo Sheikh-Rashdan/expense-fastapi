@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database.models import *
-from typing import Any
+from typing import Any, Optional
 
 def get_users(db: Session, limit: int, offset: int) -> list[User]:
     statement = select(User).offset(offset).limit(limit)
@@ -9,7 +9,7 @@ def get_users(db: Session, limit: int, offset: int) -> list[User]:
     users = result.scalars().all()
     return users
 
-def get_user(db: Session, user_id: int) -> User:
+def get_user(db: Session, user_id: int) -> Optional[User]:
     statement = select(User).where(User.id == user_id)
     result = db.execute(statement)
     user = result.scalar()
