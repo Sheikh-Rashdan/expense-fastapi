@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from models.expense import *
 from routers.user import validate_user
+from routers.category import validate_optional_category
 from database.db import get_db
 from database.models import *
 import storage.expense as storage
+import datetime
 
 expense_router = APIRouter(tags=["expense"])
 
@@ -16,10 +18,15 @@ def validate_expense(expense_id: int, db: Session = Depends(get_db)) -> Expense:
 
 @expense_router.get("/users/{user_id}/expenses", response_model=list[ExpenseModel])
 def get_expenses(limit: int = Query(default=100, ge=1, le=100),
-                   offset: int = Query(default=0, ge=0),
-                   user: User = Depends(validate_user),
-                   db: Session = Depends(get_db)) -> list[Expense]:
-    return storage.get_expenses(db, user, limit, offset)
+                 offset: int = Query(default=0, ge=0),
+                 min_amount: float = Query(default=0, ge=0),
+                 max_amount: Optional[float] = Query(default=None, ge=0),
+                 start_date: Optional[datetime.date] = None,
+                 end_date: Optional[datetime.date] = None,
+                 category: Optional[Category] = Depends(validate_optional_category),
+                 user: User = Depends(validate_user),
+                 db: Session = Depends(get_db)) -> list[Expense]:
+    return storage.get_expenses(db, user, limit, offset, min_amount, max_amount, start_date, end_date, category)
 
 @expense_router.get("/expenses/{expense_id}", response_model=ExpenseModel)
 def get_expense(expense: Expense = Depends(validate_expense)) -> Expense:
