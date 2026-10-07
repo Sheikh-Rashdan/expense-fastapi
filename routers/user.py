@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from models.user import *
+from models.summary import *
 from database.db import get_db
 from database.models import *
 import storage.user as storage
@@ -34,3 +35,7 @@ def delete_user(user: User = Depends(validate_user), db: Session = Depends(get_d
 @user_router.patch("/{user_id}", response_model=UserModel)
 def patch_user(user_patch: UserPatch, user: User = Depends(validate_user), db: Session = Depends(get_db)) -> User:
     return storage.patch_user(db, user, user_patch.model_dump(exclude_unset=True))
+
+@user_router.get("/{user_id}/summary", response_model=SummaryModel)
+def get_summary(user: User = Depends(validate_user), db: Session = Depends(get_db)) :
+    return storage.get_user_summary(db, user)
