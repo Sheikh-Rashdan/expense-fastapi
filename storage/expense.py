@@ -18,7 +18,9 @@ def get_expenses(
     end_date: datetime.date | None,
     category: Category | None,
 ) -> list[Expense]:
-    statement = select(Expense).where(Expense.user == user).offset(offset).limit(limit)
+    statement = (
+        select(Expense).where(Expense.user_id == user.id).offset(offset).limit(limit)
+    )
     statement = statement.where(Expense.amount >= min_amount)
 
     if max_amount is not None:
@@ -28,7 +30,7 @@ def get_expenses(
     if end_date is not None:
         statement = statement.where(Expense.date <= end_date)
     if category is not None:
-        statement = statement.where(Expense.category == category)
+        statement = statement.where(Expense.category_id == category.id)
 
     result = db.execute(statement)
     expenses = result.scalars().all()

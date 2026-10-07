@@ -8,7 +8,7 @@ from database.models import Category, User
 
 def get_categories(db: Session, user: User, limit: int, offset: int) -> list[Category]:
     statement = (
-        select(Category).where(Category.user == user).offset(offset).limit(limit)
+        select(Category).where(Category.user_id == user.id).offset(offset).limit(limit)
     )
     result = db.execute(statement)
     categories = result.scalars().all()
@@ -53,7 +53,7 @@ def check_category_name_exists(db: Session, category_name: str, user: User) -> b
     statement = (
         select(Category.name)
         .distinct()
-        .where(Category.user == user, Category.name == category_name)
+        .where(Category.user_id == user.id, Category.name == category_name)
     )
     result = db.execute(statement)
     is_duplicate = result.scalar() is not None

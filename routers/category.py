@@ -18,7 +18,7 @@ def validate_category(category_id: int, db: Session = Depends(get_db)) -> Catego
 
 
 def validate_category_belongs_to_user(category: Category, user: User):
-    if category.user != user:
+    if category.user_id != user.id:
         raise HTTPException(
             status_code=403,
             detail=f"User {user.id} does not own Category {category.id}",
