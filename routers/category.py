@@ -7,7 +7,7 @@ from database.models import Category, User
 from models.category import CategoryCreate, CategoryModel, CategoryPatch
 from routers.user import validate_user
 
-category_router = APIRouter(prefix="/users/{user_id}", tags=["category"])
+category_router = APIRouter(prefix="/users/{user_id}/categories", tags=["category"])
 
 
 def validate_category(category_id: int, db: Session = Depends(get_db)) -> Category:
@@ -45,7 +45,7 @@ def validate_unique_category(
         )
 
 
-@category_router.get("/categories", response_model=list[CategoryModel])
+@category_router.get("", response_model=list[CategoryModel])
 def get_categories(
     limit: int = Query(default=100, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
@@ -55,7 +55,7 @@ def get_categories(
     return storage.get_categories(db, user, limit, offset)
 
 
-@category_router.get("/categories/{category_id}", response_model=CategoryModel)
+@category_router.get("/{category_id}", response_model=CategoryModel)
 def get_category(
     category: Category = Depends(validate_category), user: User = Depends(validate_user)
 ) -> Category:
@@ -64,7 +64,7 @@ def get_category(
     return category
 
 
-@category_router.post("/categories", response_model=CategoryModel, status_code=201)
+@category_router.post("", response_model=CategoryModel, status_code=201)
 def post_category(
     category_create: CategoryCreate,
     user: User = Depends(validate_user),
@@ -75,7 +75,7 @@ def post_category(
     return storage.post_category(db, user, category_create.model_dump())
 
 
-@category_router.delete("/categories/{category_id}", status_code=204)
+@category_router.delete("/{category_id}", status_code=204)
 def delete_category(
     category: Category = Depends(validate_category),
     user: User = Depends(validate_user),
@@ -86,7 +86,7 @@ def delete_category(
     storage.delete_category(db, category)
 
 
-@category_router.patch("/categories/{category_id}", response_model=CategoryModel)
+@category_router.patch("/{category_id}", response_model=CategoryModel)
 def patch_category(
     category_patch: CategoryPatch,
     category: Category = Depends(validate_category),
