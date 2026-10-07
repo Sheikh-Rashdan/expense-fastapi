@@ -34,6 +34,17 @@ def validate_optional_category(
     return validate_category(category_id, db)
 
 
+def validate_unique_category(
+    category_name: str, user: User, db: Session = Depends(get_db)
+) -> None:
+    is_duplicate: bool = storage.check_category_name_exists(db, category_name, user)
+    if is_duplicate:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Category name '{category_name}' already exists for User {user.id}",
+        )
+
+
 @category_router.get("/users/{user_id}/categories", response_model=list[CategoryModel])
 def get_categories(
     limit: int = Query(default=100, ge=1, le=100),
@@ -57,6 +68,8 @@ def post_category(
     user: User = Depends(validate_user),
     db: Session = Depends(get_db),
 ) -> Category:
+    validate_unique_category(category_create.name, user, db)
+
     return storage.post_category(db, user, category_create.model_dump())
 
 
