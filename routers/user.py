@@ -5,8 +5,8 @@ import storage.user as storage
 from database.db import get_db
 from database.models import User
 from models.summary import SummaryModel
-from models.user import UserCreate, UserModel, UserPatch
-from utils.security import hash_password
+from models.user import UserCreate, UserLogin, UserModel, UserPatch
+from utils.security import hash_password, verify_password
 
 user_router = APIRouter(prefix="/users", tags=["user"])
 
@@ -16,6 +16,21 @@ def validate_user(user_id: int, db: Session = Depends(get_db)) -> User:
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+def validate_login(user_login: UserLogin, db: Session = Depends(get_db)) -> None:
+    password_hash: str | None = storage.get_hash_with_email(db, user_login.email)
+    if password_hash is not None:
+        login_success = verify_password(user_login.password, password_hash)
+        if login_success:
+            return
+
+    raise HTTPException(status_code=401, detail="Incorrect email or password")
+
+
+@user_router.post("/login", status_code=204)
+def login_user(_: None = Depends(validate_login)) -> None:
+    pass
 
 
 @user_router.get("", response_model=list[UserModel])
