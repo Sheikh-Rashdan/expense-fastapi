@@ -7,7 +7,7 @@ from database.models import Category, User
 from models.category import CategoryCreate, CategoryModel, CategoryPatch
 from routers.user import validate_user
 
-category_router = APIRouter(tags=["category"])
+category_router = APIRouter(prefix="/users/{user_id}", tags=["category"])
 
 
 def validate_category(category_id: int, db: Session = Depends(get_db)) -> Category:
@@ -45,7 +45,7 @@ def validate_unique_category(
         )
 
 
-@category_router.get("/users/{user_id}/categories", response_model=list[CategoryModel])
+@category_router.get("/categories", response_model=list[CategoryModel])
 def get_categories(
     limit: int = Query(default=100, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
@@ -56,13 +56,15 @@ def get_categories(
 
 
 @category_router.get("/categories/{category_id}", response_model=CategoryModel)
-def get_category(category: Category = Depends(validate_category)) -> Category:
+def get_category(
+    category: Category = Depends(validate_category), user: User = Depends(validate_user)
+) -> Category:
+    validate_category_belongs_to_user(category, user)
+
     return category
 
 
-@category_router.post(
-    "/users/{user_id}/categories", response_model=CategoryModel, status_code=201
-)
+@category_router.post("/categories", response_model=CategoryModel, status_code=201)
 def post_category(
     category_create: CategoryCreate,
     user: User = Depends(validate_user),
@@ -75,8 +77,12 @@ def post_category(
 
 @category_router.delete("/categories/{category_id}", status_code=204)
 def delete_category(
-    category: Category = Depends(validate_category), db: Session = Depends(get_db)
+    category: Category = Depends(validate_category),
+    user: User = Depends(validate_user),
+    db: Session = Depends(get_db),
 ) -> None:
+    validate_category_belongs_to_user(category, user)
+
     storage.delete_category(db, category)
 
 
@@ -84,8 +90,11 @@ def delete_category(
 def patch_category(
     category_patch: CategoryPatch,
     category: Category = Depends(validate_category),
+    user: User = Depends(validate_user),
     db: Session = Depends(get_db),
 ) -> Category:
+    validate_category_belongs_to_user(category, user)
+
     return storage.patch_category(
         db, category, category_patch.model_dump(exclude_unset=True)
     )
