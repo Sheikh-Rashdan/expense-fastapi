@@ -6,6 +6,7 @@ from database.db import get_db
 from database.models import User
 from models.summary import SummaryModel
 from models.user import UserCreate, UserModel, UserPatch
+from utils.security import hash_password
 
 user_router = APIRouter(prefix="/users", tags=["user"])
 
@@ -33,7 +34,11 @@ def get_user(user: User = Depends(validate_user)) -> User:
 
 @user_router.post("", response_model=UserModel, status_code=201)
 def post_user(user_create: UserCreate, db: Session = Depends(get_db)) -> User:
-    return storage.post_user(db, user_create.model_dump())
+    create_dict = user_create.model_dump()
+    password: str = create_dict.pop("password")
+    create_dict["password_hash"] = hash_password(password)
+
+    return storage.post_user(db, create_dict)
 
 
 @user_router.delete("/{user_id}", status_code=204)
