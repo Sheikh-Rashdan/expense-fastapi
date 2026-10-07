@@ -47,3 +47,15 @@ def patch_category(
     db.refresh(category)
 
     return category
+
+
+def check_category_name_exists(db: Session, category_name: str, user: User) -> bool:
+    statement = (
+        select(Category.name)
+        .distinct()
+        .where(Category.user == user, Category.name == category_name)
+    )
+    result = db.execute(statement)
+    is_duplicate = result.scalar() is not None
+
+    return is_duplicate
