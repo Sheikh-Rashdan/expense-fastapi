@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 
 import storage.expense as storage
 from database.db import get_db
-from database.models import *
-from models.expense import *
+from database.models import Category, Expense, User
+from models.expense import ExpenseCreate, ExpenseModel, ExpensePatch
 from routers.category import (
     validate_category_belongs_to_user,
     validate_optional_category,

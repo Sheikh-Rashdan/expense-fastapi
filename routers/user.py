@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 
 import storage.user as storage
 from database.db import get_db
-from database.models import *
-from models.summary import *
-from models.user import *
+from database.models import User
+from models.summary import SummaryModel
+from models.user import UserCreate, UserModel, UserPatch
 
 user_router = APIRouter(prefix="/users", tags=["user"])
 

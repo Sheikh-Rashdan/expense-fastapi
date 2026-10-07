@@ -3,7 +3,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from database.models import *
+from database.models import Category, User
 
 
 def get_categories(db: Session, user: User, limit: int, offset: int) -> list[Category]:

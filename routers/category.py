@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 
 import storage.category as storage
 from database.db import get_db
-from database.models import *
-from models.category import *
+from database.models import Category, User
+from models.category import CategoryCreate, CategoryModel, CategoryPatch
 from routers.user import validate_user
 
 category_router = APIRouter(tags=["category"])

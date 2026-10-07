@@ -1,9 +1,10 @@
+import datetime
 from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from database.models import *
+from database.models import Category, Expense, User
 
 
 def get_expenses(

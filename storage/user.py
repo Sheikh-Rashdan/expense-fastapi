@@ -3,7 +3,7 @@ from typing import Any
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from database.models import *
+from database.models import Category, Expense, User
 
 
 def get_users(db: Session, limit: int, offset: int) -> list[User]:
