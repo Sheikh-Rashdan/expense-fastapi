@@ -21,13 +21,13 @@ def get_expenses(
     statement = select(Expense).where(Expense.user == user).offset(offset).limit(limit)
     statement = statement.where(Expense.amount >= min_amount)
 
-    if max_amount:
+    if max_amount is not None:
         statement = statement.where(Expense.amount <= max_amount)
-    if start_date:
+    if start_date is not None:
         statement = statement.where(Expense.date >= start_date)
-    if end_date:
+    if end_date is not None:
         statement = statement.where(Expense.date <= end_date)
-    if category:
+    if category is not None:
         statement = statement.where(Expense.category == category)
 
     result = db.execute(statement)
