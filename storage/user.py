@@ -67,7 +67,7 @@ def get_user_summary(db: Session, user: User) -> dict[str, Any]:
     return response
 
 
-def get_hash_with_email(db: Session, email: str) -> str | None:
-    statement = select(User.password_hash).where(User.email == email)
+def get_user_with_email(db: Session, email: str) -> User | None:
+    statement = select(User).where(User.email == email)
     result = db.execute(statement)
     return result.scalar()
