@@ -1,12 +1,13 @@
 from pydantic import BaseModel, ConfigDict
+from typing import Optional
 
 class UserPatch(BaseModel):
-    name: str | None = None
-    email: str | None = None
+    name: Optional[str] = None
+    email: Optional[str] = None
 
 class UserCreate(BaseModel):
     name: str
-    email: str | None = None
+    email: Optional[str] = None
 
 class UserModel(UserCreate):
     model_config: ConfigDict = ConfigDict(from_attributes=True)
