@@ -6,3 +6,6 @@ dependencies = [
     "fastapi[standard]>=0.142.2",
     "sqlalchemy>=2.1.3",
 ]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.params.Depends", "Depends"]

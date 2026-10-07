@@ -1,17 +1,20 @@
-from pydantic import BaseModel, ConfigDict
 import datetime
-from typing import Optional
+
+from pydantic import BaseModel, ConfigDict
+
 
 class ExpensePatch(BaseModel):
-    amount: Optional[float] = None
-    description: Optional[str] = None
-    date: Optional[datetime.date] = None
-    category_id: Optional[int] = None
+    amount: float | None = None
+    description: str | None = None
+    date: datetime.date | None = None
+    category_id: int | None = None
+
 
 class ExpenseCreate(BaseModel):
     amount: float
-    description: Optional[str] = None
-    category_id: Optional[int] = None
+    description: str | None = None
+    category_id: int | None = None
+
 
 class ExpenseModel(ExpenseCreate):
     model_config: ConfigDict = ConfigDict(from_attributes=True)

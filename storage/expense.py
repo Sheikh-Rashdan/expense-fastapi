@@ -1,29 +1,48 @@
+from typing import Any
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from database.models import *
-from typing import Any, Optional
 
-def get_expenses(db: Session, user: User, limit: int, offset: int, min_amount: float, max_amount: Optional[float], start_date: Optional[datetime.date], end_date: Optional[datetime.date], category: Optional[Category]) -> list[Expense]:
+from database.models import *
+
+
+def get_expenses(
+    db: Session,
+    user: User,
+    limit: int,
+    offset: int,
+    min_amount: float,
+    max_amount: float | None,
+    start_date: datetime.date | None,
+    end_date: datetime.date | None,
+    category: Category | None,
+) -> list[Expense]:
     statement = select(Expense).where(Expense.user == user).offset(offset).limit(limit)
     statement = statement.where(Expense.amount >= min_amount)
-    
-    if(max_amount): statement = statement.where(Expense.amount <= max_amount)
-    if(start_date): statement = statement.where(Expense.date >= start_date)
-    if(end_date): statement = statement.where(Expense.date <= end_date)
-    if(category): statement = statement.where(Expense.category == category)
+
+    if max_amount:
+        statement = statement.where(Expense.amount <= max_amount)
+    if start_date:
+        statement = statement.where(Expense.date >= start_date)
+    if end_date:
+        statement = statement.where(Expense.date <= end_date)
+    if category:
+        statement = statement.where(Expense.category == category)
 
     result = db.execute(statement)
     expenses = result.scalars().all()
 
     return expenses
 
-def get_expense(db: Session, expense_id: int) -> Optional[Expense]:
+
+def get_expense(db: Session, expense_id: int) -> Expense | None:
     statement = select(Expense).where(Expense.id == expense_id)
     result = db.execute(statement)
     expense = result.scalar()
     return expense
 
-def post_expense(db: Session, user: User, create_dict: dict[str,Any]) -> Expense:
+
+def post_expense(db: Session, user: User, create_dict: dict[str, Any]) -> Expense:
     expense: Expense = Expense(user_id=user.id, **create_dict)
 
     db.add(expense)
@@ -32,11 +51,13 @@ def post_expense(db: Session, user: User, create_dict: dict[str,Any]) -> Expense
 
     return expense
 
+
 def delete_expense(db: Session, expense: Expense) -> None:
     db.delete(expense)
     db.commit()
 
-def patch_expense(db: Session, expense: Expense, patch_dict: dict[str,Any]) -> Expense:
+
+def patch_expense(db: Session, expense: Expense, patch_dict: dict[str, Any]) -> Expense:
     for attr, value in patch_dict.items():
         setattr(expense, attr, value)
 
