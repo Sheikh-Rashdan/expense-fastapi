@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 from database.models import *
 from typing import Any, Optional
@@ -36,3 +36,17 @@ def patch_user(db: Session, user: User, patch_dict: dict[str,Any]) -> User:
     db.refresh(user)
 
     return user
+
+def get_user_summary(db: Session, user: User) -> dict[str,Any]:
+    response = {}
+
+    statement = select(func.sum(Expense.amount), func.count(Expense.amount)).where(Expense.user == user)
+    result = db.execute(statement).one()
+    response["total_expenses"] = result[0]
+    response["expense_count"] = result[1]
+
+    statement = select(Category.name, func.sum(Expense.amount)).where(Expense.user == user).join(Category).group_by(Category.name)
+    result = db.execute(statement)
+    response["by_category"] = {k:v for k,v in result.all()}
+
+    return response
