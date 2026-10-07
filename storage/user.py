@@ -52,8 +52,8 @@ def get_user_summary(db: Session, user: User) -> dict[str, Any]:
         Expense.user == user
     )
     result = db.execute(statement).one()
-    response["total_expenses"] = result[0]
-    response["expense_count"] = result[1]
+    response["total_expenses"] = result[0] or 0
+    response["expense_count"] = result[1] or 0
 
     statement = (
         select(Category.name, func.sum(Expense.amount))
