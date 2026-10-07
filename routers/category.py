@@ -94,6 +94,7 @@ def patch_category(
     db: Session = Depends(get_db),
 ) -> Category:
     validate_category_belongs_to_user(category, user)
+    validate_unique_category(category.name, user, db)
 
     return storage.patch_category(
         db, category, category_patch.model_dump(exclude_unset=True)
