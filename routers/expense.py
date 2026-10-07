@@ -23,6 +23,18 @@ def validate_expense(expense_id: int, db: Session = Depends(get_db)) -> Expense:
     return expense
 
 
+def validate_date_range(
+    start_date: datetime.date | None, end_date: datetime.date | None
+) -> None:
+    if start_date is None or end_date is None:
+        return
+
+    if start_date > end_date:
+        raise HTTPException(
+            status_code=422, detail="Start date is greater than end date"
+        )
+
+
 @expense_router.get("/users/{user_id}/expenses", response_model=list[ExpenseModel])
 def get_expenses(
     limit: int = Query(default=100, ge=1, le=100),
@@ -35,6 +47,8 @@ def get_expenses(
     user: User = Depends(validate_user),
     db: Session = Depends(get_db),
 ) -> list[Expense]:
+    validate_date_range(start_date, end_date)
+
     return storage.get_expenses(
         db, user, limit, offset, min_amount, max_amount, start_date, end_date, category
     )
