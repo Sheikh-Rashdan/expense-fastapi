@@ -14,6 +14,7 @@ class ExpenseCreate(BaseModel):
     amount: float
     description: str | None = None
     category_id: int | None = None
+    date: datetime.date | None = None
 
 
 class ExpenseModel(ExpenseCreate):
