@@ -8,10 +8,13 @@ class UserPatch(BaseModel):
 
 class UserCreate(BaseModel):
     name: str
-    email: str | None = None
+    email: str
+    password: str
 
 
-class UserModel(UserCreate):
+class UserModel(BaseModel):
     model_config: ConfigDict = ConfigDict(from_attributes=True)
 
     id: int
+    name: str
+    email: str
