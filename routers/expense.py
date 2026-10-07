@@ -7,7 +7,10 @@ import storage.expense as storage
 from database.db import get_db
 from database.models import *
 from models.expense import *
-from routers.category import validate_optional_category
+from routers.category import (
+    validate_category_belongs_to_user,
+    validate_optional_category,
+)
 from routers.user import validate_user
 
 expense_router = APIRouter(tags=["expense"])
@@ -50,6 +53,10 @@ def post_expense(
     user: User = Depends(validate_user),
     db: Session = Depends(get_db),
 ) -> Expense:
+    category: Category = validate_optional_category(expense_create.category_id, db)
+    if category is not None:
+        validate_category_belongs_to_user(category, user)
+
     return storage.post_expense(db, user, expense_create.model_dump())
 
 
