@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 
-from sqlalchemy import Date, Float, ForeignKey, String
+from sqlalchemy import Date, ForeignKey, Numeric, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -44,7 +44,7 @@ class Expense(Base):
     __tablename__ = "expenses"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    amount: Mapped[float] = mapped_column(Float, nullable=False)
+    amount: Mapped[float] = mapped_column(Numeric, nullable=False)
     description: Mapped[str | None] = mapped_column(String, nullable=True)
     date: Mapped[datetime.date] = mapped_column(
         Date, default=datetime.date.today, nullable=False
