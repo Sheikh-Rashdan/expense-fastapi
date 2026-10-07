@@ -32,5 +32,5 @@ def delete_user(user: User = Depends(validate_user), db: Session = Depends(get_d
     storage.delete_user(db, user)
 
 @user_router.patch("/{user_id}", response_model=UserModel)
-def patch_user(user_patch: UserPatch, user: User = Depends(validate_user), db: Session = Depends(get_db)):
+def patch_user(user_patch: UserPatch, user: User = Depends(validate_user), db: Session = Depends(get_db)) -> User:
     return storage.patch_user(db, user, user_patch.model_dump(exclude_unset=True))

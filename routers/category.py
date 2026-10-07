@@ -34,5 +34,5 @@ def delete_category(category: Category = Depends(validate_category), db: Session
     storage.delete_category(db, category)
 
 @category_router.patch("/categories/{category_id}", response_model=CategoryModel)
-def patch_category(category_patch: CategoryPatch, category: Category = Depends(validate_category), db: Session = Depends(get_db)):
+def patch_category(category_patch: CategoryPatch, category: Category = Depends(validate_category), db: Session = Depends(get_db)) -> Category:
     return storage.patch_category(db, category, category_patch.model_dump(exclude_unset=True))
