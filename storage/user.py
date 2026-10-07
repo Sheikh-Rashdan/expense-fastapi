@@ -71,3 +71,11 @@ def get_user_with_email(db: Session, email: str) -> User | None:
     statement = select(User).where(User.email == email)
     result = db.execute(statement)
     return result.scalar()
+
+
+def check_email_exists(db: Session, email: str) -> bool:
+    statement = select(User.email).where(User.email == email)
+    result = db.execute(statement)
+    is_duplicate = result.scalar() is not None
+
+    return is_duplicate
