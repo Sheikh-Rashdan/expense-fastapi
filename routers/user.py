@@ -29,6 +29,15 @@ def validate_login(user_login: UserLogin, db: Session = Depends(get_db)) -> User
     raise HTTPException(status_code=401, detail="Incorrect email or password")
 
 
+def validate_unique_email(email: str, db: Session = Depends(get_db)) -> None:
+    is_duplicate: bool = storage.check_email_exists(db, email)
+    if is_duplicate:
+        raise HTTPException(
+            status_code=409,
+            detail="Email already in use",
+        )
+
+
 @user_router.post("/login", response_model=AccessToken)
 def login_user(user: User = Depends(validate_login)) -> AccessToken:
     return {"token": create_access_token(user.id)}
@@ -50,6 +59,8 @@ def get_user(user: User = Depends(validate_user)) -> User:
 
 @user_router.post("", response_model=UserModel, status_code=201)
 def post_user(user_create: UserCreate, db: Session = Depends(get_db)) -> User:
+    validate_unique_email(user_create.email, db)
+
     create_dict = user_create.model_dump()
     password: str = create_dict.pop("password")
     create_dict["password_hash"] = hash_password(password)
