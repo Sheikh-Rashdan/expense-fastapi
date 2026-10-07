@@ -14,6 +14,11 @@ def validate_category(category_id: int, db: Session = Depends(get_db)) -> Catego
         raise HTTPException(status_code=404, detail="Category not found")
     return category
 
+def validate_optional_category(category_id: Optional[int] = None, db: Session = Depends(get_db)) -> Optional[Category]:
+    if category_id is None: return None
+
+    return validate_category(category_id, db)
+
 @category_router.get("/users/{user_id}/categories", response_model=list[CategoryModel])
 def get_categories(limit: int = Query(default=100, ge=1, le=100),
                    offset: int = Query(default=0, ge=0),
