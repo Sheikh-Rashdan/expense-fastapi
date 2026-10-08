@@ -79,3 +79,11 @@ def check_email_exists(db: Session, email: str) -> bool:
     is_duplicate = result.scalar() is not None
 
     return is_duplicate
+
+
+def check_users_exist(db: Session) -> bool:
+    statement = select(User)
+    result = db.execute(statement)
+    users_exist: bool = result.scalar() is not None
+
+    return users_exist
