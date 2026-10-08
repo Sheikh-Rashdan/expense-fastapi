@@ -5,9 +5,9 @@ import storage.category as storage
 from database.db import get_db
 from database.models import Category, User
 from models.category import CategoryCreate, CategoryModel, CategoryPatch
-from routers.user import validate_user
+from routers.user import get_current_user
 
-category_router = APIRouter(prefix="/users/{user_id}/categories", tags=["category"])
+category_router = APIRouter(prefix="/categories", tags=["category"])
 
 
 def validate_category(category_id: int, db: Session = Depends(get_db)) -> Category:
@@ -49,7 +49,7 @@ def validate_unique_category(
 def get_categories(
     limit: int = Query(default=100, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    user: User = Depends(validate_user),
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> list[Category]:
     return storage.get_categories(db, user, limit, offset)
@@ -57,7 +57,8 @@ def get_categories(
 
 @category_router.get("/{category_id}", response_model=CategoryModel)
 def get_category(
-    category: Category = Depends(validate_category), user: User = Depends(validate_user)
+    category: Category = Depends(validate_category),
+    user: User = Depends(get_current_user),
 ) -> Category:
     validate_category_belongs_to_user(category, user)
 
@@ -67,7 +68,7 @@ def get_category(
 @category_router.post("", response_model=CategoryModel, status_code=201)
 def post_category(
     category_create: CategoryCreate,
-    user: User = Depends(validate_user),
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Category:
     validate_unique_category(category_create.name, user, db)
@@ -78,7 +79,7 @@ def post_category(
 @category_router.delete("/{category_id}", status_code=204)
 def delete_category(
     category: Category = Depends(validate_category),
-    user: User = Depends(validate_user),
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> None:
     validate_category_belongs_to_user(category, user)
@@ -90,7 +91,7 @@ def delete_category(
 def patch_category(
     category_patch: CategoryPatch,
     category: Category = Depends(validate_category),
-    user: User = Depends(validate_user),
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Category:
     validate_category_belongs_to_user(category, user)

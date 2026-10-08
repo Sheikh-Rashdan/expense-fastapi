@@ -11,9 +11,9 @@ from routers.category import (
     validate_category_belongs_to_user,
     validate_optional_category,
 )
-from routers.user import validate_user
+from routers.user import get_current_user
 
-expense_router = APIRouter(prefix="/users/{user_id}/expenses", tags=["expense"])
+expense_router = APIRouter(prefix="/expenses", tags=["expense"])
 
 
 def validate_expense(expense_id: int, db: Session = Depends(get_db)) -> Expense:
@@ -52,7 +52,7 @@ def get_expenses(
     start_date: datetime.date | None = None,
     end_date: datetime.date | None = None,
     category: Category | None = Depends(validate_optional_category),
-    user: User = Depends(validate_user),
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> list[Expense]:
     validate_date_range(start_date, end_date)
@@ -64,7 +64,7 @@ def get_expenses(
 
 @expense_router.get("/{expense_id}", response_model=ExpenseModel)
 def get_expense(
-    expense: Expense = Depends(validate_expense), user: User = Depends(validate_user)
+    expense: Expense = Depends(validate_expense), user: User = Depends(get_current_user)
 ) -> Expense:
     validate_expense_belongs_to_user(expense, user)
 
@@ -74,7 +74,7 @@ def get_expense(
 @expense_router.post("", response_model=ExpenseModel, status_code=201)
 def post_expense(
     expense_create: ExpenseCreate,
-    user: User = Depends(validate_user),
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Expense:
     category: Category = validate_optional_category(expense_create.category_id, db)
@@ -87,7 +87,7 @@ def post_expense(
 @expense_router.delete("/{expense_id}", status_code=204)
 def delete_expense(
     expense: Expense = Depends(validate_expense),
-    user: User = Depends(validate_user),
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> None:
     validate_expense_belongs_to_user(expense, user)
@@ -99,7 +99,7 @@ def delete_expense(
 def patch_expense(
     expense_patch: ExpensePatch,
     expense: Expense = Depends(validate_expense),
-    user: User = Depends(validate_user),
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Expense:
     validate_expense_belongs_to_user(expense, user)
