@@ -7,6 +7,13 @@ from sqlalchemy.orm import Session
 from database.models import Category, Expense, User
 
 
+def get_all_expenses(db: Session, limit: int, offset: int) -> list[Expense]:
+    statement = select(Expense).offset(offset).limit(limit)
+    result = db.execute(statement)
+    expenses = result.scalars().all()
+    return expenses
+
+
 def get_expenses(
     db: Session,
     user: User,
