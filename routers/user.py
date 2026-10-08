@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
@@ -67,20 +67,6 @@ def get_me(user: User = Depends(get_current_user)):
     return user
 
 
-@user_router.get("", response_model=list[UserModel])
-def get_users(
-    limit: int = Query(default=100, ge=1, le=100),
-    offset: int = Query(default=0, ge=0),
-    db: Session = Depends(get_db),
-) -> list[User]:
-    return storage.get_users(db, limit, offset)
-
-
-@user_router.get("/{user_id}", response_model=UserModel)
-def get_user(user: User = Depends(validate_user)) -> User:
-    return user
-
-
 @user_router.post("", response_model=UserModel, status_code=201)
 def post_user(user_create: UserCreate, db: Session = Depends(get_db)) -> User:
     validate_unique_email(user_create.email, db)
@@ -92,17 +78,17 @@ def post_user(user_create: UserCreate, db: Session = Depends(get_db)) -> User:
     return storage.post_user(db, create_dict)
 
 
-@user_router.delete("/{user_id}", status_code=204)
+@user_router.delete("/me", status_code=204)
 def delete_user(
-    user: User = Depends(validate_user), db: Session = Depends(get_db)
+    user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ) -> None:
     storage.delete_user(db, user)
 
 
-@user_router.patch("/{user_id}", response_model=UserModel)
+@user_router.patch("/me", response_model=UserModel)
 def patch_user(
     user_patch: UserPatch,
-    user: User = Depends(validate_user),
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> User:
     return storage.patch_user(db, user, user_patch.model_dump(exclude_unset=True))
