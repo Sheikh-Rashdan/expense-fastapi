@@ -6,6 +6,13 @@ from sqlalchemy.orm import Session
 from database.models import Category, User
 
 
+def get_all_categories(db: Session, limit: int, offset: int) -> list[Category]:
+    statement = select(Category).offset(offset).limit(limit)
+    result = db.execute(statement)
+    categories = result.scalars().all()
+    return categories
+
+
 def get_categories(db: Session, user: User, limit: int, offset: int) -> list[Category]:
     statement = (
         select(Category).where(Category.user_id == user.id).offset(offset).limit(limit)
