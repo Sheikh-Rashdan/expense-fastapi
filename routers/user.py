@@ -45,6 +45,10 @@ def validate_unique_email(email: str, db: Session = Depends(get_db)) -> None:
         )
 
 
+def validate_first_user(db: Session = Depends(get_db)) -> bool:
+    return not storage.check_users_exist(db)
+
+
 def get_current_user(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> User:
