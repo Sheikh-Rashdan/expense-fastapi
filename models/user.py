@@ -6,6 +6,10 @@ class UserPatch(BaseModel):
     email: str | None = None
 
 
+class UserPatchAdmin(BaseModel):
+    is_admin: bool
+
+
 class UserCreate(BaseModel):
     name: str
     email: str
@@ -18,6 +22,7 @@ class UserModel(BaseModel):
     id: int
     name: str
     email: str
+    is_admin: bool
 
 
 class UserLogin(BaseModel):
