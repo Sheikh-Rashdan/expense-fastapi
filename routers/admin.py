@@ -11,66 +11,56 @@ from routers.user import get_current_user, get_db, validate_user
 admin_router = APIRouter(prefix="/admin", tags=["admin"])
 
 
-def validate_admin(user: User) -> None:
+def require_admin(user: User = Depends(get_current_user)) -> User:
     if not user.is_admin:
         raise HTTPException(status_code=403, detail=f"User {user.id} is not an admin")
 
 
 @admin_router.get("/users", response_model=list[UserModel])
 def get_all_users(
-    user: User = Depends(get_current_user),
+    _: User = Depends(require_admin),
     limit: int = Query(default=100, ge=1),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ) -> list[User]:
-    validate_admin(user)
-
     return storage.user.get_users(db, limit, offset)
 
 
 @admin_router.get("/categories", response_model=list[CategoryModel])
 def get_all_categories(
-    user: User = Depends(get_current_user),
+    _: User = Depends(require_admin),
     limit: int = Query(default=100, ge=1),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ) -> list[Category]:
-    validate_admin(user)
-
     return storage.category.get_all_categories(db, limit, offset)
 
 
 @admin_router.get("/expenses", response_model=list[ExpenseModel])
 def get_all_expenses(
-    user: User = Depends(get_current_user),
+    _: User = Depends(require_admin),
     limit: int = Query(default=100, ge=1),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ) -> list[Expense]:
-    validate_admin(user)
-
     return storage.expense.get_all_expenses(db, limit, offset)
 
 
 @admin_router.get("/admins", response_model=list[UserModel])
 def get_admins(
-    user: User = Depends(get_current_user),
+    _: User = Depends(require_admin),
     limit: int = Query(default=100, ge=1),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ) -> list[UserModel]:
-    validate_admin(user)
-
     return storage.user.get_admins(db, limit, offset)
 
 
 @admin_router.patch("/admins/{user_id}", response_model=UserModel)
 def patch_user_admin(
     user_admin_patch: UserAdminPatch,
-    admin: User = Depends(get_current_user),
+    admin: User = Depends(require_admin),
     user: User = Depends(validate_user),
     db: Session = Depends(get_db),
 ) -> UserModel:
-    validate_admin(admin)
-
     return storage.user.patch_user_admin(db, user, user_admin_patch.model_dump())
