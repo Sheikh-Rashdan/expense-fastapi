@@ -1,10 +1,14 @@
+import os
 from datetime import UTC, datetime, timedelta
 
 import bcrypt
+import dotenv
 from fastapi import HTTPException
 from jose import JWTError, jwt
 
-SECRET_KEY = "SUPER_SECRET_KEY"  # TODO:  replace
+dotenv.load_dotenv()
+
+SECRET_KEY = os.getenv("JWT_KEY")
 ALGORITHM = "HS256"
 
 
