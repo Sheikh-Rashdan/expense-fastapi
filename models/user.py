@@ -6,7 +6,7 @@ class UserPatch(BaseModel):
     email: str | None = None
 
 
-class UserPatchAdmin(BaseModel):
+class UserAdminPatch(BaseModel):
     is_admin: bool
 
 

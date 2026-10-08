@@ -8,11 +8,11 @@ from database.models import User
 from models.summary import SummaryModel
 from models.user import (
     AccessToken,
+    UserAdminPatch,
     UserCreate,
     UserLogin,
     UserModel,
     UserPatch,
-    UserPatchAdmin,
 )
 from utils.security import (
     create_access_token,
@@ -90,7 +90,7 @@ def post_user(user_create: UserCreate, db: Session = Depends(get_db)) -> User:
     user = storage.post_user(db, create_dict)
 
     return storage.patch_user_admin(
-        db, user, UserPatchAdmin(is_admin=is_first_user).model_dump()
+        db, user, UserAdminPatch(is_admin=is_first_user).model_dump()
     )
 
 
