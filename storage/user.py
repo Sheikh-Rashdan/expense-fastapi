@@ -45,6 +45,15 @@ def patch_user(db: Session, user: User, patch_dict: dict[str, Any]) -> User:
     return user
 
 
+def patch_user_admin(db: Session, user: User, patch_dict: dict[str, Any]) -> User:
+    user.is_admin = patch_dict["is_admin"]
+
+    db.commit()
+    db.refresh(user)
+
+    return user
+
+
 def get_user_summary(db: Session, user: User) -> dict[str, Any]:
     response = {}
 
