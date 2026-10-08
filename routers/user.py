@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 import storage.user as storage
@@ -6,9 +7,15 @@ from database.db import get_db
 from database.models import User
 from models.summary import SummaryModel
 from models.user import AccessToken, UserCreate, UserLogin, UserModel, UserPatch
-from utils.security import create_access_token, hash_password, verify_password
+from utils.security import (
+    create_access_token,
+    decode_access_token,
+    hash_password,
+    verify_password,
+)
 
 user_router = APIRouter(prefix="/users", tags=["user"])
+oauth2_scheme = OAuth2PasswordBearer("/users/login")
 
 
 def validate_user(user_id: int, db: Session = Depends(get_db)) -> User:
@@ -38,9 +45,26 @@ def validate_unique_email(email: str, db: Session = Depends(get_db)) -> None:
         )
 
 
+def get_current_user(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+) -> User:
+    user_id: int = decode_access_token(token)
+    user: User | None = storage.get_user(db, user_id)
+
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    return user
+
+
 @user_router.post("/login", response_model=AccessToken)
 def login_user(user: User = Depends(validate_login)) -> AccessToken:
     return {"token": create_access_token(user.id)}
+
+
+@user_router.get("/me", response_model=UserModel)
+def get_me(user: User = Depends(get_current_user)):
+    return user
 
 
 @user_router.get("", response_model=list[UserModel])
