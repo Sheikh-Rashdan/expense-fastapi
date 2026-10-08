@@ -6,7 +6,14 @@ import storage.user as storage
 from database.db import get_db
 from database.models import User
 from models.summary import SummaryModel
-from models.user import AccessToken, UserCreate, UserLogin, UserModel, UserPatch
+from models.user import (
+    AccessToken,
+    UserCreate,
+    UserLogin,
+    UserModel,
+    UserPatch,
+    UserPatchAdmin,
+)
 from utils.security import (
     create_access_token,
     decode_access_token,
@@ -74,12 +81,17 @@ def get_me(user: User = Depends(get_current_user)):
 @user_router.post("", response_model=UserModel, status_code=201)
 def post_user(user_create: UserCreate, db: Session = Depends(get_db)) -> User:
     validate_unique_email(user_create.email, db)
+    is_first_user: bool = validate_first_user(db)
 
     create_dict = user_create.model_dump()
     password: str = create_dict.pop("password")
     create_dict["password_hash"] = hash_password(password)
 
-    return storage.post_user(db, create_dict)
+    user = storage.post_user(db, create_dict)
+
+    return storage.patch_user_admin(
+        db, user, UserPatchAdmin(is_admin=is_first_user).model_dump()
+    )
 
 
 @user_router.delete("/me", status_code=204)
