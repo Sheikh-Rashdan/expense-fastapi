@@ -94,6 +94,6 @@ def patch_user(
     return storage.patch_user(db, user, user_patch.model_dump(exclude_unset=True))
 
 
-@user_router.get("/{user_id}/summary", response_model=SummaryModel)
-def get_summary(user: User = Depends(validate_user), db: Session = Depends(get_db)):
+@user_router.get("/me/summary", response_model=SummaryModel)
+def get_summary(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     return storage.get_user_summary(db, user)
