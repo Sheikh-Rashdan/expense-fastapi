@@ -13,6 +13,13 @@ def get_users(db: Session, limit: int, offset: int) -> list[User]:
     return users
 
 
+def get_admins(db: Session, limit: int, offset: int) -> list[User]:
+    statement = select(User).where(User.is_admin == True).offset(offset).limit(limit)
+    result = db.execute(statement)
+    users = result.scalars().all()
+    return users
+
+
 def get_user(db: Session, user_id: int) -> User | None:
     statement = select(User).where(User.id == user_id)
     result = db.execute(statement)
