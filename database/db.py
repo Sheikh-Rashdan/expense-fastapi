@@ -1,11 +1,15 @@
 from collections.abc import Generator
+from os import environ
 
+from dotenv import load_dotenv
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from database.models import Base
 
-engine: Engine = create_engine("sqlite:///database/expenses.db")
+load_dotenv()
+DATABASE_URL = environ.get("DATABASE_URL")
+engine: Engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 
 
