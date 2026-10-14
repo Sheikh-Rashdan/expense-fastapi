@@ -1,6 +1,6 @@
 # Expense FastAPI
 
-A lightweight FastAPI application for managing users, categories, and personal expenses with persistent SQLite storage, *built to learn FastAPI*.
+A lightweight FastAPI application for managing users, categories, and personal expenses with PostgreSQL storage, *built to learn FastAPI*.
 
 ## Features
 
@@ -10,14 +10,15 @@ A lightweight FastAPI application for managing users, categories, and personal e
 - Expense tracking with filters for amount, date range, and category
 - Per-user expense summary totals and category breakdown
 - Admin-only access to all users, categories, and expenses, plus admin-role management
-- Automatic SQLite database initialization at startup
+- Automatic database table initialization at startup
 
 ## Tech Stack
 
 - Python 3.14+
 - FastAPI
 - SQLAlchemy
-- SQLite
+- PostgreSQL
+- Psycopg
 
 ## Project Structure
 
@@ -26,7 +27,6 @@ expense-fastapi/
 ├── database/
 │   ├── db.py
 │   ├── models.py
-│   └── expenses.db
 ├── models/
 │   ├── category.py
 │   ├── expense.py
@@ -70,14 +70,20 @@ Or with a virtual environment:
 ```bash
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install fastapi[standard] sqlalchemy bcrypt python-dotenv "python-jose[cryptography]"
+pip install fastapi[standard] sqlalchemy bcrypt python-dotenv "python-jose[cryptography]" "psycopg[binary]"
 ```
 
 > This project uses `pyproject.toml` and `uv.lock`, so `uv sync` is the recommended setup path.
 
-### Configure the JWT secret
+### Configure PostgreSQL and the JWT secret
 
-Copy `.env.example` to `.env` and replace the sample `JWT_KEY` value with a long, random secret before running the app. The key is used to sign access tokens.
+Create a PostgreSQL database, then copy `.env.example` to `.env`. Set `DATABASE_URL` to your database connection string, using the Psycopg SQLAlchemy URL format:
+
+```text
+postgresql+psycopg://<user>:<password>@<host>:<port>/<database>
+```
+
+Replace the sample `JWT_KEY` value with a long, random secret before running the app. The key is used to sign access tokens. Keep `.env` private and do not commit real credentials.
 
 ### Run the application
 
@@ -201,13 +207,7 @@ curl "http://127.0.0.1:8000/users/me/summary" \
 
 ## Database
 
-The app uses SQLite and creates the schema automatically on startup via SQLAlchemy model metadata. Passwords are stored as hashes; login tokens are signed using the `JWT_KEY` configured in `.env`.
-
-Database file:
-
-```text
-database/expenses.db
-```
+The app connects to PostgreSQL using `DATABASE_URL` from `.env` and creates its tables automatically at startup via SQLAlchemy model metadata. The PostgreSQL database must already exist. Passwords are stored as hashes; login tokens are signed using the `JWT_KEY` configured in `.env`.
 
 ## Future Improvements
 
