@@ -8,7 +8,12 @@ from database.models import Category, Expense, User
 
 
 def get_all_expenses(db: Session, limit: int, offset: int) -> list[Expense]:
-    statement = select(Expense).offset(offset).limit(limit)
+    statement = (
+        select(Expense)
+        .offset(offset)
+        .limit(limit)
+        .order_by(Expense.date.desc(), Expense.id)
+    )
     result = db.execute(statement)
     expenses = result.scalars().all()
     return expenses
@@ -26,7 +31,11 @@ def get_expenses(
     category: Category | None,
 ) -> list[Expense]:
     statement = (
-        select(Expense).where(Expense.user_id == user.id).offset(offset).limit(limit)
+        select(Expense)
+        .where(Expense.user_id == user.id)
+        .offset(offset)
+        .limit(limit)
+        .order_by(Expense.date.desc())
     )
     statement = statement.where(Expense.amount >= min_amount)
 

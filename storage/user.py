@@ -7,14 +7,20 @@ from database.models import Category, Expense, User
 
 
 def get_users(db: Session, limit: int, offset: int) -> list[User]:
-    statement = select(User).offset(offset).limit(limit)
+    statement = select(User).offset(offset).limit(limit).order_by(User.id)
     result = db.execute(statement)
     users = result.scalars().all()
     return users
 
 
 def get_admins(db: Session, limit: int, offset: int) -> list[User]:
-    statement = select(User).where(User.is_admin == True).offset(offset).limit(limit)
+    statement = (
+        select(User)
+        .where(User.is_admin == True)
+        .offset(offset)
+        .limit(limit)
+        .order_by(User.id)
+    )
     result = db.execute(statement)
     users = result.scalars().all()
     return users
