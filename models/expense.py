@@ -1,6 +1,6 @@
 import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 
 class ExpensePatch(BaseModel):
@@ -8,6 +8,14 @@ class ExpensePatch(BaseModel):
     description: str | None = None
     date: datetime.date | None = None
     category_id: int | None = None
+
+    @model_validator(mode="after")
+    def validate_non_nullable_fields(self):
+        fields = ("amount", "date", "category_id")
+        for field in fields:
+            if field in self.model_fields_set and getattr(self, field) is None:
+                raise ValueError(f"{field} cannot be null")
+        return self
 
 
 class ExpenseCreate(BaseModel):
