@@ -9,6 +9,9 @@ from database.models import Base
 
 load_dotenv()
 DATABASE_URL = environ.get("DATABASE_URL")
+if DATABASE_URL is None:
+    raise ValueError(".env does not include `DATABASE_URL`")
+
 engine: Engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 

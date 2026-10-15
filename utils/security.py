@@ -8,8 +8,10 @@ from jose import JWTError, jwt
 
 dotenv.load_dotenv()
 
-SECRET_KEY = os.getenv("JWT_KEY")
 ALGORITHM = "HS256"
+SECRET_KEY = os.getenv("JWT_KEY")
+if SECRET_KEY is None:
+    raise ValueError(".env does not include `SECRET_KEY`")
 
 
 def hash_password(password: str) -> str:
