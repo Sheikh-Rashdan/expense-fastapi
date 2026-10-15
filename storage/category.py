@@ -1,6 +1,6 @@
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from database.models import Category, User
@@ -78,7 +78,10 @@ def check_category_name_exists(db: Session, category_name: str, user: User) -> b
     statement = (
         select(Category.name)
         .distinct()
-        .where(Category.user_id == user.id, Category.name == category_name)
+        .where(
+            Category.user_id == user.id,
+            func.lower(Category.name) == func.lower(category_name),
+        )
     )
     result = db.execute(statement)
     is_duplicate = result.scalar() is not None
