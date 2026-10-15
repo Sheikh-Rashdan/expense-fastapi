@@ -56,22 +56,36 @@ def post_expense(db: Session, user: User, create_dict: dict[str, Any]) -> Expens
     expense: Expense = Expense(user_id=user.id, **create_dict)
 
     db.add(expense)
-    db.commit()
-    db.refresh(expense)
+
+    try:
+        db.commit()
+        db.refresh(expense)
+    except:
+        db.rollback()
+        raise
 
     return expense
 
 
 def delete_expense(db: Session, expense: Expense) -> None:
     db.delete(expense)
-    db.commit()
+
+    try:
+        db.commit()
+    except:
+        db.rollback()
+        raise
 
 
 def patch_expense(db: Session, expense: Expense, patch_dict: dict[str, Any]) -> Expense:
     for attr, value in patch_dict.items():
         setattr(expense, attr, value)
 
-    db.commit()
-    db.refresh(expense)
+    try:
+        db.commit()
+        db.refresh(expense)
+    except:
+        db.rollback()
+        raise
 
     return expense

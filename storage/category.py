@@ -33,15 +33,25 @@ def post_category(db: Session, user: User, create_dict: dict[str, Any]) -> Categ
     category: Category = Category(user_id=user.id, **create_dict)
 
     db.add(category)
-    db.commit()
-    db.refresh(category)
+
+    try:
+        db.commit()
+        db.refresh(category)
+    except:
+        db.rollback()
+        raise
 
     return category
 
 
 def delete_category(db: Session, category: Category) -> None:
     db.delete(category)
-    db.commit()
+
+    try:
+        db.commit()
+    except:
+        db.rollback()
+        raise
 
 
 def patch_category(
@@ -50,8 +60,12 @@ def patch_category(
     for attr, value in patch_dict.items():
         setattr(category, attr, value)
 
-    db.commit()
-    db.refresh(category)
+    try:
+        db.commit()
+        db.refresh(category)
+    except:
+        db.rollback()
+        raise
 
     return category
 

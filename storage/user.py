@@ -31,23 +31,37 @@ def post_user(db: Session, create_dict: dict[str, Any]) -> User:
     user: User = User(**create_dict)
 
     db.add(user)
-    db.commit()
-    db.refresh(user)
+
+    try:
+        db.commit()
+        db.refresh(user)
+    except:
+        db.rollback()
+        raise
 
     return user
 
 
 def delete_user(db: Session, user: User) -> None:
     db.delete(user)
-    db.commit()
+
+    try:
+        db.commit()
+    except:
+        db.rollback()
+        raise
 
 
 def patch_user(db: Session, user: User, patch_dict: dict[str, Any]) -> User:
     for attr, value in patch_dict.items():
         setattr(user, attr, value)
 
-    db.commit()
-    db.refresh(user)
+    try:
+        db.commit()
+        db.refresh(user)
+    except:
+        db.rollback()
+        raise
 
     return user
 
@@ -55,8 +69,12 @@ def patch_user(db: Session, user: User, patch_dict: dict[str, Any]) -> User:
 def patch_user_admin(db: Session, user: User, patch_dict: dict[str, Any]) -> User:
     user.is_admin = patch_dict["is_admin"]
 
-    db.commit()
-    db.refresh(user)
+    try:
+        db.commit()
+        db.refresh(user)
+    except:
+        db.rollback()
+        raise
 
     return user
 
