@@ -2,21 +2,26 @@
 
 A lightweight FastAPI application for managing users, categories, and personal expenses with PostgreSQL storage, *built to learn FastAPI*.
 
+## Deployed API
+
+The backend is deployed at [https://expense-fastapi-7i2q.onrender.com](https://expense-fastapi-7i2q.onrender.com). Interactive API documentation is available at [https://expense-fastapi-7i2q.onrender.com/docs](https://expense-fastapi-7i2q.onrender.com/docs).
+
 ## Features
 
 - User management with create, read, update, and delete operations
 - Password-based login with bearer-token authentication
 - Category management linked to a specific user
-- Expense tracking with filters for amount, date range, and category
+- Expense tracking with optional merchant details and filters for amount, date range, and category
 - Per-user expense summary totals and category breakdown
 - Admin-only access to all users, categories, and expenses, plus admin-role management
-- Automatic database table initialization at startup
+- Automatic database table initialization at startup and Alembic schema migrations
 
 ## Tech Stack
 
 - Python 3.14+
 - FastAPI
 - SQLAlchemy
+- Alembic
 - PostgreSQL
 - Psycopg
 
@@ -27,6 +32,8 @@ expense-fastapi/
 ├── database/
 │   ├── db.py
 │   ├── models.py
+├── alembic/
+│   └── versions/
 ├── models/
 │   ├── category.py
 │   ├── expense.py
@@ -44,6 +51,7 @@ expense-fastapi/
 ├── utils/
 │   └── security.py
 ├── .env.example
+├── alembic.ini
 ├── main.py
 ├── pyproject.toml
 ├── uv.lock
@@ -84,6 +92,16 @@ postgresql+psycopg://<user>:<password>@<host>:<port>/<database>
 ```
 
 Replace the sample `JWT_KEY` value with a long, random secret before running the app. The key is used to sign access tokens. Keep `.env` private and do not commit real credentials.
+
+### Apply database migrations
+
+Apply the Alembic migrations after configuring `DATABASE_URL` and before running the application:
+
+```bash
+uv run alembic upgrade head
+```
+
+This creates or updates the schema, including the `merchant` field on expenses. The application also initializes missing tables at startup, but existing databases need migrations applied to receive schema changes.
 
 ### Run the application
 
@@ -150,7 +168,7 @@ PATCH /expenses/{expense_id}
 DELETE /expenses/{expense_id}
 ```
 
-Expense listing supports filtering by `min_amount`, `max_amount`, `start_date`, `end_date`, and `category_id`, as well as pagination with `limit` (maximum 100) and `offset`.
+Expenses support an optional `merchant` field. Expense listing supports filtering by `min_amount`, `max_amount`, `start_date`, `end_date`, and `category_id`, as well as pagination with `limit` (maximum 100) and `offset`.
 
 ### Admin
 
@@ -223,5 +241,6 @@ The project is intentionally simple and suitable for learning FastAPI patterns, 
 
 - Validation is implemented using FastAPI request models and dependency checks.
 - User-owned categories and expenses are protected by ownership checks; admin-wide endpoints require admin privileges.
-- Uniqueness and date-range validation are enforced in the router layer.
+- Uniqueness checks for category names are case-insensitive, and date-range validation is enforced in the router layer.
+- Expense updates validate that a selected category exists and belongs to the authenticated user.
 - The current project is a learning-focused implementation and is not intended as a production-ready security solution.
