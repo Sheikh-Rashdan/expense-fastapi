@@ -8,6 +8,7 @@ class ExpensePatch(BaseModel):
     description: str | None = None
     date: datetime.date | None = None
     category_id: int | None = None
+    merchant: str | None = None
 
     @model_validator(mode="after")
     def validate_non_nullable_fields(self):
@@ -23,6 +24,7 @@ class ExpenseCreate(BaseModel):
     description: str | None = None
     category_id: int | None = None
     date: datetime.date | None = None
+    merchant: str | None = None
 
 
 class ExpenseModel(ExpenseCreate):
