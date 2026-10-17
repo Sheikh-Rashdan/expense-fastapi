@@ -104,6 +104,10 @@ def patch_expense(
 ) -> Expense:
     validate_expense_belongs_to_user(expense, user)
 
+    category: Category = validate_optional_category(expense_patch.category_id, db)
+    if category is not None:
+        validate_category_belongs_to_user(category, user)
+
     return storage.patch_expense(
         db, expense, expense_patch.model_dump(exclude_unset=True)
     )
